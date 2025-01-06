@@ -1,10 +1,21 @@
-import { useState, FocusEvent  } from 'react';
-import { Field, Form, Formik } from 'formik';
+import {useState, FocusEvent} from 'react';
+import {ErrorMessage, Field, Form, Formik, FormikProps, useField} from 'formik';
 import * as Yup from 'yup';
 import s from './Form.module.scss';
-import { validateEmail } from '../validation/validation.ts';
+import {validateEmail} from '../validation/validation.ts';
 
-// Схема валидации с использованием Yup
+
+// const MyTextInput = ({label, ...props}) => {
+//     const [field, meta] = useField(props);
+//     return (
+//         <label>
+//             {label}
+//             <input {...props} {...field}/>
+//             {meta.touched && meta.error && (<div className={s.error}>{meta.error}</div>)}
+//         </label>
+//     )
+// }
+
 const validationSchema = Yup.object().shape({
     name: Yup.string()
         .min(2, 'Минимум 2 символа')
@@ -12,10 +23,10 @@ const validationSchema = Yup.object().shape({
         .required('Поле обязательно для заполнения'),
     email: Yup.string()
         .test('email', function (value) {
-            if (!value) return this.createError({ message: 'Поле обязательно для заполнения' });
+            if (!value) return this.createError({message: 'Поле обязательно для заполнения'});
             const errorMessage = validateEmail(value);
             if (errorMessage) {
-                return this.createError({ message: errorMessage });
+                return this.createError({message: errorMessage});
             }
             return true;
         })
@@ -44,7 +55,7 @@ export const FormWithFormik = () => {
                 terms: false,
             }}
             validationSchema={validationSchema}
-            onSubmit={async (values, { resetForm, setSubmitting }) => {
+            onSubmit={async (values, {resetForm, setSubmitting}) => {
                 try {
                     setIsSubmitting(true);
                     console.log(JSON.stringify(values, null, 2));
@@ -61,96 +72,82 @@ export const FormWithFormik = () => {
             validateOnChange={true}
             validateOnMount={true}
         >
-            {({ errors, touched, values, dirty }) => {
+            {({errors, touched, values, dirty}) => {
                 const isFormValid = Object.keys(errors).length === 0 && values.terms;
 
                 return (
                     <Form className={s.form}>
                         <h2>Отправить перевод</h2>
-
                         <label htmlFor="name">
                             Ваше имя:
-                            <Field
-                                id="name"
-                                name="name"
-                                type="text"
-                                className={`${s.input} ${touched.name && errors.name ? s.errorInput : ''}`}
+                            <Field id="name"
+                                   name="name"
+                                   type="text"
+                                   className={`${s.input} ${touched.name && errors.name ? s.errorInput : ''}`}
                             />
-                            {touched.name && errors.name && (
-                                <div className={s.error}>{errors.name}</div>
-                            )}
+                            <ErrorMessage name={'name'} className={s.error} component={'div'}/>
+                            {/*{touched.name && errors.name && (*/}
+                            {/*    <div className={s.error}>{errors.name}</div>*/}
+                            {/*)}*/}
                         </label>
 
                         <label htmlFor="email">
                             Ваша электронная почта:
-                            <Field
-                                id="email"
-                                name="email"
-                                type="email"
-                                className={`${s.input} ${touched.email && errors.email ? s.errorInput : ''}`}
+                            <Field id="email"
+                                   name="email"
+                                   type="email"
+                                   className={`${s.input} ${touched.email && errors.email ? s.errorInput : ''}`}
                             />
-                            {touched.email && errors.email && (
-                                <div className={s.error}>{errors.email}</div>
-                            )}
+                            <ErrorMessage name={'email'} className={s.error} component={'div'}/>
                         </label>
 
                         <label htmlFor="amount">
                             Сумма перевода:
-                            <Field
-                                id="amount"
-                                name="amount"
-                                type="number"
-                                className={`${s.input} ${touched.amount && errors.amount ? s.errorInput : ''}`}
-                                onFocus={(e: FocusEvent<HTMLInputElement>) => {
-                                    // Очищаем поле при фокусе, если его значение 0
-                                    if (e.target.value === '0') {
-                                        e.target.value = '';
-                                    }
-                                }}
+                            <Field id="amount"
+                                   name="amount"
+                                   type="number"
+                                   className={`${s.input} ${touched.amount && errors.amount ? s.errorInput : ''}`}
+                                   onFocus={(e: FocusEvent<HTMLInputElement>) => {
+                                       if (e.target.value === '0') {
+                                           e.target.value = '';
+                                       }
+                                   }}
                             />
-                            {touched.amount && errors.amount && (
-                                <div className={s.error}>{errors.amount}</div>
-                            )}
+                            <ErrorMessage name={'amount'} className={s.error} component={'div'}/>
                         </label>
 
                         <label htmlFor="currency">
                             Валюта:
-                            <Field
-                                id="currency"
-                                name="currency"
-                                className={`${s.input} ${touched.currency && errors.currency ? s.errorInput : ''}`}
-                                as="select"
+                            <Field id="currency"
+                                   name="currency"
+                                   className={`${s.input} ${touched.currency && errors.currency ? s.errorInput : ''}`}
+                                   as="select"
                             >
                                 <option value="">Выберите валюту</option>
                                 <option value="USD">USD - доллары</option>
                                 <option value="EUR">EUR - евро</option>
                                 <option value="TG">TG - тугрики</option>
                             </Field>
-                            {touched.currency && errors.currency && (
-                                <div className={s.error}>{errors.currency}</div>
-                            )}
+                            <ErrorMessage name={'currency'} className={s.error} component={'div'}/>
                         </label>
 
                         <label htmlFor="text">
                             Ваше сообщение:
-                            <Field
-                                id="text"
-                                name="text"
-                                className={`${s.textarea} ${touched.text && errors.text ? s.errorInput : ''}`}
+                            <Field id="text"
+                                   name="text"
+                                   className={`${s.textarea} ${touched.text && errors.text ? s.errorInput : ''}`}
                             />
-                            {touched.text && errors.text && <div className={s.error}>{errors.text}</div>}
+                            <ErrorMessage name={'text'} className={s.error} component={'div'}/>
                         </label>
 
                         <label className={s.checkbox}>
-                            <Field name="terms" type="checkbox" />
+                            <Field name="terms" type="checkbox"/>
                             Соглашаетесь с политикой конфиденциальности?
                         </label>
-                        {touched.terms && errors.terms && <div className={s.error}>{errors.terms}</div>}
-
-                        <button
-                            type="submit"
-                            disabled={isSubmitting || !isFormValid || !dirty}
-                            className={s.button}
+                        <ErrorMessage name={'terms'} className={s.error} component={'div'}/>
+                        <button type="submit"
+                                disabled={isSubmitting || !isFormValid || !dirty}
+                                className={s.button}
                         >
                             {isSubmitting ? 'Отправка...' : 'Отправить перевод'}
                         </button>
